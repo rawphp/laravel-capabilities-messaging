@@ -26,6 +26,16 @@ https://github.com/rawphp/laravel-capabilities-monorepo/blob/main/docs/versionin
   `ApprovalManager is required…` → `ApprovalGateway is required…` (host tests asserting the
   old string break).
 
+### Security
+
+- **CallbackHandler approver binding** — a non-empty signed `approver_hint` now binds the
+  callback to that product principal id (the linked user's `id`, else `getAuthIdentifier()`).
+  A different linked Telegram user clicking a forwarded/leaked button gets
+  `status: forbidden`, `message: approver_mismatch` before the approval gateway is touched.
+  Empty hint keeps the old behaviour (approval policy decides). **Consumer impact:** hosts
+  that put a Telegram user id (or anything other than the product user id) in
+  `approver_hint` must switch to the product user id or send an empty hint.
+
 ### Changed
 
 - **Internal extract** — `TelegramUpdateParser` peels pure Update field extraction from
@@ -33,6 +43,8 @@ https://github.com/rawphp/laravel-capabilities-monorepo/blob/main/docs/versionin
 
 ### Added
 
+- **Audited tool profile** — Telegram tool calls pass the configured `agent_profile` as the
+  `tool_profile` invoke option, so core audit entries record which profile gated the call.
 - **Laravel 13 / illuminate 13 support** — all `illuminate/*` requirements allow `^11.0|^12.0|^13.0`.
 - Sibling conversation package for the capabilities bus (Telegram-first): webhooks, identity links,
   threads, and chat-side approval notification — implements **core contracts only** (D-007).
